@@ -64,7 +64,6 @@ defmodule EctoStorage.Migrations do
     end
 
     create table(:ecto_storage_attachments, prefix: prefix) do
-      add(:name, :string)
       add(:blob_id, references(:ecto_storage_blobs, on_delete: :delete_all), null: false)
 
       add(

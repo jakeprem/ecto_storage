@@ -1,4 +1,6 @@
 defmodule EctoStorageWeb.BlobsController do
+  use Phoenix.Controller, formats: []
+  
   @moduledoc """
   Phoenix controller for serving blobs in proxy mode.
   
@@ -6,7 +8,6 @@ defmodule EctoStorageWeb.BlobsController do
   to storage backend URLs.
   """
 
-  import Plug.Conn
   alias EctoStorage.Attachments.Blob
 
   def proxy(conn, %{"id" => id} = params) do

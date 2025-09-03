@@ -22,11 +22,19 @@ defmodule EctoStorage.Storage.LocalStorage do
     end
   end
 
-  defp generate_key(file_path) do
-    filename = Path.basename(file_path)
-    ext = Path.extname(filename)
-    base = :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
-    "#{base}#{ext}"
+  def delete(key) do
+    upload_dir = Application.get_env(:ecto_storage, :upload_dir, "priv/uploads")
+    file_path = Path.join(upload_dir, key)
+    
+    case File.rm(file_path) do
+      :ok -> :ok
+      {:error, :enoent} -> :ok  # File already deleted
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp generate_key(_file_path) do
+    Ecto.UUID.generate()
   end
 
   defp ensure_upload_dir(dir) do

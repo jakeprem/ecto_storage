@@ -23,6 +23,8 @@ defmodule EctoStorage.MixProject do
     [
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.13"},
+      {:plug, "~> 1.0"},
+      {:phoenix, "~> 1.7"},
       {:igniter, "~> 0.6.28", only: [:dev, :test]}
     ]
   end

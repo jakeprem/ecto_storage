@@ -13,7 +13,7 @@ defmodule EctoStorage.BlobCleanup do
   Get the configured blob cleanup module.
   """
   def cleanup_module do
-    Application.get_env(:ecto_storage, :blob_cleanup, EctoStorage.BlobCleanup.Sync)
+    EctoStorage.Config.blob_cleanup()
   end
 
   @doc """

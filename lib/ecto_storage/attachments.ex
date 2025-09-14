@@ -1,15 +1,41 @@
 defmodule EctoStorage.Attachments do
   @moduledoc false
 
-  alias EctoStorage.Attachments.{Attachment, Ledger, Blob}
+  alias EctoStorage.Attachments.{Attachment, Blob}
+  alias EctoStorage.Config
 
-  defp storage_module,
-    do: Application.get_env(:ecto_storage, :storage_module, EctoStorage.Storage.LocalStorage)
+  @doc """
+  Returns an anonymous function for use with Phoenix LiveView's consume_uploaded_entries/3.
 
-  defp repo, do: Application.get_env(:ecto_storage, :repo)
+  This function handles the conversion from Phoenix LiveView upload entries to the format
+  expected by EctoStorage.Attachments.attach/3.
+
+  ## Examples
+
+      uploaded_files = consume_uploaded_entries(socket, :cover_image, EctoStorage.Attachments.live_attach(post, :cover_image))
+  """
+  def live_attach(record, field) do
+    fn %{path: path}, entry ->
+      source = %{
+        file_path: path,
+        filename: entry.client_name,
+        content_type: entry.client_type,
+        size: entry.client_size
+      }
+
+      case attach(record, field, source) do
+        {:ok, attachment} ->
+          {:ok, attachment}
+
+        {:error, reason} ->
+          IO.puts("Attach failed: #{inspect(reason)}")
+          {:postpone, reason}
+      end
+    end
+  end
 
   def attach(record, field, source) do
-    repo = repo()
+    repo = Config.repo()
 
     with :ok <- validate_preloads(record, field),
          {:ok, blob} <- create_blob(repo, source),
@@ -37,7 +63,7 @@ defmodule EctoStorage.Attachments do
   defp current_attachment(record, field), do: Map.get(record, field)
 
   defp create_blob(repo, %{file_path: path, filename: name, content_type: type, size: size}) do
-    with {:ok, key} <- storage_module().store(path) do
+    with {:ok, key} <- Config.storage_module().store(path) do
       %Blob{}
       |> Blob.changeset(%{
         key: key,
@@ -59,6 +85,7 @@ defmodule EctoStorage.Attachments do
 
   defp create_ledger(repo, record, field) do
     ledger_field = :"#{field}_ledger"
+
     ledger_attrs = %{
       metadata: %{
         record_type: to_string(record.__struct__),

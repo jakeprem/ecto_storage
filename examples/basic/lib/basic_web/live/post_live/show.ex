@@ -23,7 +23,7 @@ defmodule BasicWeb.PostLive.Show do
       <div class="space-y-6">
         <%= if @post.cover_image_blob do %>
           <div class="mb-6">
-            <img src={~p"/blobs/proxy/#{@post.cover_image_blob.id}/#{@post.cover_image_blob.filename}"} 
+            <img src={~p"/blobs/redirect/#{@post.cover_image_blob.id}/#{@post.cover_image_blob.filename}"} 
                  alt="Cover image for #{@post.title}"
                  class="max-w-full h-auto rounded-lg shadow-lg" />
           </div>

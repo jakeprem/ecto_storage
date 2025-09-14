@@ -82,5 +82,4 @@ config :phoenix_live_view,
 
 # EctoStorage configuration
 config :ecto_storage,
-  repo: Basic.Repo,
-  upload_dir: "priv/uploads"
+  repo: Basic.Repo

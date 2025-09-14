@@ -1,20 +1,36 @@
 defmodule EctoStorage.Storage.LocalStorage do
   @moduledoc false
 
+  defp config do
+    Application.get_env(:ecto_storage, __MODULE__, [])
+  end
+
+  defp upload_dir do
+    config = config()
+    upload_dir = Keyword.get(config, :upload_dir, "priv/uploads")
+
+    case upload_dir do
+      {otp_app, path} ->
+        Path.join(Application.app_dir(otp_app), path)
+      path when is_binary(path) ->
+        path
+    end
+  end
+
   def store(file_path) do
-    upload_dir = Application.get_env(:ecto_storage, :upload_dir, "priv/uploads")
+    dir = upload_dir()
     key = generate_key(file_path)
-    dest_path = Path.join(upload_dir, key)
+    dest_path = Path.join(dir, key)
     
-    with :ok <- ensure_upload_dir(upload_dir),
+    with :ok <- ensure_upload_dir(dir),
          :ok <- File.cp(file_path, dest_path) do
       {:ok, key}
     end
   end
 
   def get(key) do
-    upload_dir = Application.get_env(:ecto_storage, :upload_dir, "priv/uploads")
-    file_path = Path.join(upload_dir, key)
+    dir = upload_dir()
+    file_path = Path.join(dir, key)
     
     case File.read(file_path) do
       {:ok, content} -> {:ok, content}
@@ -23,14 +39,20 @@ defmodule EctoStorage.Storage.LocalStorage do
   end
 
   def delete(key) do
-    upload_dir = Application.get_env(:ecto_storage, :upload_dir, "priv/uploads")
-    file_path = Path.join(upload_dir, key)
+    dir = upload_dir()
+    file_path = Path.join(dir, key)
     
     case File.rm(file_path) do
       :ok -> :ok
       {:error, :enoent} -> :ok  # File already deleted
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  def public_url(key, _opts \\ []) do
+    config = config()
+    static_path = Keyword.get(config, :static_path, "/uploads")
+    "#{static_path}/#{key}"
   end
 
   defp generate_key(_file_path) do

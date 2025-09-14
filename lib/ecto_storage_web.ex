@@ -16,6 +16,8 @@ defmodule EctoStorageWeb do
         # Match ActiveStorage pattern but with plain IDs for now
         get "/proxy/:id/*filename", EctoStorageWeb.BlobsController, :proxy, as: :blob_proxy
         get "/proxy/:id", EctoStorageWeb.BlobsController, :proxy, as: :blob_proxy
+        get "/redirect/:id/*filename", EctoStorageWeb.BlobsController, :redirect, as: :blob_redirect
+        get "/redirect/:id", EctoStorageWeb.BlobsController, :redirect, as: :blob_redirect
       end
     end
   end

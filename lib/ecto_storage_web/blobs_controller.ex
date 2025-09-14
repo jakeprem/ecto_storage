@@ -9,16 +9,19 @@ defmodule EctoStorageWeb.BlobsController do
   """
 
   alias EctoStorage.Attachments.Blob
+  alias EctoStorage.Config
 
   def proxy(conn, %{"id" => id} = params) do
-    repo = Application.get_env(:ecto_storage, :repo)
+    repo = Config.repo()
     
     case repo.get(Blob, id) do
       nil ->
         send_error(conn, 404, "Blob not found")
       
       blob ->
-        case EctoStorage.Storage.LocalStorage.get(blob.key) do
+        storage_module = Config.storage_module()
+
+        case storage_module.get(blob.key) do
           {:ok, content} ->
             filename = get_filename(blob, params)
             
@@ -30,6 +33,21 @@ defmodule EctoStorageWeb.BlobsController do
           {:error, _reason} ->
             send_error(conn, 404, "File not found")
         end
+    end
+  end
+
+  def redirect(conn, %{"id" => id} = _params) do
+    repo = Config.repo()
+
+    case repo.get(Blob, id) do
+      nil ->
+        send_error(conn, 404, "Blob not found")
+
+      blob ->
+        # Generate storage URL and redirect to it
+        storage_module = Config.storage_module()
+        storage_url = storage_module.public_url(blob.key)
+        Phoenix.Controller.redirect(conn, external: storage_url)
     end
   end
 

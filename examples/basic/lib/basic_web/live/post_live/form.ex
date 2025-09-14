@@ -135,7 +135,7 @@ defmodule BasicWeb.PostLive.Form do
     case save_post(post, post_params, action) do
       {:ok, saved_post} ->
         saved_post = Repo.preload(saved_post, [:cover_image_ledger, :cover_image_blob])
-        uploaded_files = consume_uploaded_entries(socket, :cover_image, EctoStorage.live_attach(saved_post, :cover_image))
+        uploaded_files = consume_uploaded_entries(socket, :cover_image, EctoStorage.Attachments.live_attach(saved_post, :cover_image))
         
         action_text = if action == :edit, do: "updated", else: "created"
         message = case uploaded_files do
@@ -143,7 +143,7 @@ defmodule BasicWeb.PostLive.Form do
           [] -> "Post #{action_text} successfully"
           other -> 
             require Logger
-            Logger.warn("ImageUpload::Unexpected result: #{inspect(other)}")
+            Logger.warning("ImageUpload::Unexpected result: #{inspect(other)}")
             "Post #{action_text} but image upload failed"
         end
         

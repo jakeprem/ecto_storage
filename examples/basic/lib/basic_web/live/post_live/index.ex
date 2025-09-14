@@ -23,7 +23,7 @@ defmodule BasicWeb.PostLive.Index do
       >
         <:col :let={{_id, post}} label="Cover Image">
           <%= if post.cover_image_blob do %>
-            <img src={~p"/blobs/proxy/#{post.cover_image_blob.id}/#{post.cover_image_blob.filename}"} 
+            <img src={~p"/blobs/redirect/#{post.cover_image_blob.id}/#{post.cover_image_blob.filename}"} 
                  alt="Cover image for #{post.title}"
                  class="w-16 h-16 object-cover rounded" />
           <% else %>

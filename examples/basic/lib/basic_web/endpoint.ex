@@ -26,6 +26,9 @@ defmodule BasicWeb.Endpoint do
     gzip: not code_reloading?,
     only: BasicWeb.static_paths()
 
+  # EctoStorage local file serving
+  plug EctoStorage.Plug.LocalStorage
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
